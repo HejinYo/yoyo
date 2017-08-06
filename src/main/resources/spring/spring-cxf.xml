@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxws="http://cxf.apache.org/jaxws" xmlns:cxf="http://cxf.apache.org/core"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
+       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+    <import resource="classpath:META-INF/cxf/cxf.xml"/>
+    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+
+    <!-- service实现类 -->
+    <bean id="hello" class="cn.hejinyo.system.webservice.service.impl.HelloWorldImpl"/>
+    <!-- 安全验证ws-security  回调函数 -->
+    <bean id="serverPasswordCallback" class="cn.hejinyo.system.webservice.service.ServerPasswordCallbackHandler"></bean>
+    <!-- 发布webservice服务 -->
+    <jaxws:server id="helloWorld" address="/HelloWorld" serviceClass="cn.hejinyo.system.webservice.service.HelloWorld"><!--  接口 -->
+        <jaxws:serviceBean>
+            <ref bean="hello"/> <!-- 实现类 -->
+        </jaxws:serviceBean>
+        <!-- WS-Security拦截器 -->
+        <jaxws:inInterceptors>
+            <bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
+                <constructor-arg><!-- 拦截器的构造函数参数 -->
+                    <map>
+                        <entry key="action" value="UsernameToken"/>
+                        <entry key="passwordType" value="PasswordText"/><!-- 密码类型，PasswordText表示明文 -->
+                        <entry key="passwordCallbackRef">
+                            <ref bean="serverPasswordCallback"/><!-- 回调函数引用 -->
+                        </entry>
+                    </map>
+                </constructor-arg>
+            </bean>
+            <!-- <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"></bean>--><!--日志打印-->
+        </jaxws:inInterceptors>
+    </jaxws:server>
+</beans>

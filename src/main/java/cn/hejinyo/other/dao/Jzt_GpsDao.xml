@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.hejinyo.other.dao.Jzt_GpsDao">
+
+    <!--查询列表-->
+    <select id="getJzt_GpsList" resultType="cn.hejinyo.other.model.Jzt_Gps">
+        select * from jzt_gps
+    </select>
+
+    <!--增加数据-->
+    <insert id="addJzt_Gps" parameterType="cn.hejinyo.other.model.Jzt_Gps" >
+        insert into jzt_gps(devid,longitude,latitude,credate)
+          values(#{devid},#{longitude},#{latitude},now())
+    </insert>
+    
+    <!--删除数据-->
+    <delete id="delJzt_Gps" parameterType="cn.hejinyo.other.model.Jzt_Gps">
+        delete from jzt_gps
+          where devid=#{devid}
+    </delete>
+</mapper>

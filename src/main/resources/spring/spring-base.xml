@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <description>spring主配置文件</description>
+
+    <!-- 属性和配置文件读入 ,多个用逗号隔开 数据库参数和系统参数 -->
+    <util:properties id="applicationProperties" location="classpath:properties/application.properties"/>
+    <context:property-placeholder properties-ref="applicationProperties" ignore-resource-not-found="true"/>
+
+    <!-- 扫描注解@Component , @Service , @Repository。 要把 controller去除，controller是在spring-mvc.xml中配置的，如果不去除会影响事务管理的。 -->
+    <!-- cn.hejinyo.*.mapper 已经在 sping-mybatis.xml中文件扫描 -->
+    <context:component-scan base-package="cn.hejinyo.core.aop,cn.hejinyo.*.service,cn.hejinyo.*.model">
+        <context:include-filter type="annotation" expression="org.aspectj.lang.annotation.Aspect"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.ControllerAdvice"/>
+    </context:component-scan>
+
+    <!--Spring中ApplicationContext的工具类-->
+    <bean id="SpringContextUtil" class="cn.hejinyo.core.utils.SpringContextUtil"/>
+
+    <!--引入其他配置文件（springmvc 无需引入）-->
+    <import resource="spring-datasource.xml"/>
+    <import resource="spring-mybatis.xml"/>
+    <import resource="spring-transaction.xml"/>
+    <import resource="spring-shiro.xml"/>
+    <!--<import resource="spring-cxf.xml"/>-->
+
+</beans>

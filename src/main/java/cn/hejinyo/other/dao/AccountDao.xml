@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.hejinyo.other.dao.AccountDao">
+    <select id="getAllAccounts" resultType="cn.hejinyo.other.model.Account" parameterType="cn.hejinyo.other.model.Account">
+        select * from account
+       <!-- <where>
+            <if test="custid != null and !&quot;&quot;.equals(custid.trim())">
+                and custid = #{custid}
+            </if>
+        </where>-->
+    </select>
+
+    <select id="getTest" resultType="cn.hejinyo.other.model.Account" parameterType="java.lang.String">
+      <choose>
+          <when test="_parameter == 'custid'">
+              select custid  from account
+          </when>
+          <when test="_parameter == 'account'">
+              select account from account
+          </when>
+          <otherwise>
+              select * from account where custid =#{_parameter}
+          </otherwise>
+      </choose>
+    </select>
+
+</mapper>

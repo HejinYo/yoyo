@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace必须指向Dao接口 -->
+<mapper namespace="cn.hejinyo.other.dao.TableIpDao">
+
+	<select id="getRowCount" resultType="int">
+		select count(*) from table_ip
+	</select>
+
+    <insert id="addTable_Ip" parameterType="cn.hejinyo.other.model.TableIp">
+        insert into table_ip(ip,port,isp)
+          values('${ip}','${port}','${isp}')
+    </insert>
+	
+	<select id="selectByParams" resultType="cn.hejinyo.other.model.TableIp" parameterType="map">
+		select * from table_ip
+		order by findTime desc
+		limit ${offset}, ${size}
+	</select>
+	
+	<select id="fetchByParams" resultType="cn.hejinyo.other.model.TableIp" parameterType="map">
+		select * from table_ip
+		where 1=1
+		<if test="country != null and country != ''">
+			and country = '${country}'
+		</if>
+		<if test="isp != null and isp != ''">
+			and isp = '${isp}'
+		</if>
+		limit ${size}
+	</select>
+	
+</mapper> 

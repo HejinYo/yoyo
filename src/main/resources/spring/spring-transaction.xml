@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+    http://www.springframework.org/schema/aop
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <description>spring 事物管理配置</description>
+
+    <!-- 配置Spring的事务管理器  -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 事物管理方式一：基于xml配置方式 -->
+    <!-- propagation:事物传播行为
+             1、REQUIRED（默认值）：在有transaction状态下执行；如当前没有transaction，则创建新的transaction
+             2、SUPPORTS：如当前有transaction，则在transaction状态下执行；如果当前没有transaction，在无transaction状态下执行
+             3、MANDATORY：必须在有transaction状态下执行，如果当前没有transaction，则抛出异常IllegalTransactionStateException
+             4、REQUIRES_NEW：创建新的transaction并执行；如果当前已有transaction，则将当前transaction挂起
+             5、NOT_SUPPORTED：在无transaction状态下执行；如果当前已有transaction，则将当前transaction挂起
+             6、NEVER：在无transaction状态下执行；如果当前已有transaction，则抛出异常IllegalTransactionStateException
+             7、NESTED 如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则执行与 REQUIRED 类似的操作
+         read-only:读写或只读事务，默认false(读写)
+         isolation:可选的事务隔离级别设置
+             1、DEFAULT： 这是一个PlatfromTransactionManager默认的隔离级别，使用数据库默认的事务隔离级别.另外四个与JDBC的隔离级别相对应
+             2、READ_COMMITTED： 保证一个事务修改的数据提交后才能被另外一个事务读取。另外一个事务不能读取该事务未提交的数据
+             3、READ_UNCOMMITTED： 这是事务最低的隔离级别，它充许令外一个事务可以看到这个事务未提交的数据
+             4、REPEATABLE_READ： 这种事务隔离级别可以防止脏读，不可重复读。但是可能出现幻像读
+             5、SERIALIZABLE 这是花费最高代价但是最可靠的事务隔离级别。事务被处理为顺序执行。除了防止脏读，不可重复读外，还避免了幻像读
+         rollback-for:导致事务回滚的异常类数组,Class对象数组，必须继承自Throwable,一般我们都继承RuntimeException
+         timeout:事务超时时间设置 -->
+    <!--通过<tx:advice>标签定义事务增强，并制定事务管理器  -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes><!--定义属性，声明事务规则  -->
+            <!-- REQUIRED 支持当前事物，如果不存在，就新建一个
+                 SUPPORTS  支持当前事物，如果不存在，就不使用事物 -->
+            <tx:method name="save*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.RuntimeException"/><!-- 增加 -->
+            <tx:method name="delete*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception"/><!-- 删除 -->
+            <tx:method name="update*" propagation="REQUIRED" read-only="false" rollback-for="java.lang.Exception"/> <!-- 修改 -->
+            <tx:method name="get*" propagation="SUPPORTS"/> <!--  获得一个存在的对象-->
+            <tx:method name="find*" propagation="SUPPORTS"/> <!-- 查找一个可不能存在的对象 -->
+            <tx:method name="list*" propagation="SUPPORTS"/><!-- 获取多个对象 -->
+            <tx:method name="count*" propagation="SUPPORTS"/><!-- 统计 -->
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:config expose-proxy="true" proxy-target-class="true"><!--定义切面  -->
+        <!-- 配置事务切点 -->
+        <!-- 配置哪些类的方法进行事务管理:定义在service包或者子包里的任意方法的执行 -->
+        <aop:pointcut id="transactionPointcut" expression="execution(public * cn.hejinyo.*.service.*.impl.*Impl.*(..))"/>
+        <!-- 将事务增强与切入点组合（织入事务切面） -->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="transactionPointcut"/>
+    </aop:config>
+
+    <!-- 注解式事物开启 -->
+    <tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="true"/>
+
+    <!--配置druid spring jdbc监控 -->
+    <bean id="druid-stat-interceptor" class="com.alibaba.druid.support.spring.stat.DruidStatInterceptor">
+    </bean>
+    <bean id="druid-stat-pointcut" class="org.springframework.aop.support.JdkRegexpMethodPointcut"
+          scope="prototype">
+        <property name="patterns">
+            <list>
+                <value>cn.hejinyo.*.service.*</value>
+                <value>cn.hejinyo.*.dao.*</value>
+            </list>
+        </property>
+    </bean>
+    <aop:config proxy-target-class="true">
+        <aop:advisor advice-ref="druid-stat-interceptor" pointcut-ref="druid-stat-pointcut"/>
+    </aop:config>
+</beans>

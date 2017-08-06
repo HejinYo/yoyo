@@ -1,0 +1,60 @@
+介绍：http://www.csdn.net/article/2014-09-25/2821866
+1、使用@JSONField定制序列化: https://github.com/alibaba/fastjson/wiki/JSONField
+
+Fastjson API入口类是com.alibaba.fastjson.JSON，常用的序列化操作都可以在JSON类上的静态方法直接完成。
+public static final Object parse(String text); // 把JSON文本parse为JSONObject或者JSONArray
+public static final JSONObject parseObject(String text)； // 把JSON文本parse成JSONObject
+public static final <T> T parseObject(String text, Class<T> clazz); // 把JSON文本parse为JavaBean
+public static final JSONArray parseArray(String text); // 把JSON文本parse成JSONArray
+public static final <T> List<T> parseArray(String text, Class<T> clazz); //把JSON文本parse成JavaBean集合
+public static final String toJSONString(Object object); // 将JavaBean序列化为JSON文本
+public static final String toJSONString(Object object, boolean prettyFormat); // 将JavaBean序列化为带格式的JSON文本
+public static final Object toJSON(Object javaObject); 将JavaBean转换为JSONObject或者JSONArray。
+
+2、fastjson如何处理日期
+
+JSON.toJSONStringWithDateFormat(date, "yyyy-MM-dd HH:mm:ss.SSS")
+使用ISO-8601日期格式
+
+JSON.toJSONString(obj, SerializerFeature.UseISO8601DateFormat);
+全局修改日期格式
+
+JSON.DEFFAULT_DATE_FORMAT = "yyyy-MM-dd";
+JSON.toJSONString(obj, SerializerFeature.WriteDateUseDateFormat);
+反序列化能够自动识别如下日期格式：
+
+ISO-8601日期格式
+yyyy-MM-dd
+yyyy-MM-dd HH:mm:ss
+yyyy-MM-dd HH:mm:ss.SSS
+毫秒数字
+毫秒数字字符串
+.NET JSON日期格式
+new Date(198293238)
+
+
+3、SpringMVC配置项
+<property name="serializerFeatures">
+    <list>
+        <!-- 输出key时是否使用双引号 -->
+        <value>QuoteFieldNames</value>
+        <!-- 是否输出值为null的字段 -->
+        <value>WriteMapNullValue</value>
+        <!-- 数值字段如果为null,输出为0,而非null -->
+        <value>WriteNullNumberAsZero</value>
+        <!-- List字段如果为null,输出为[],而非null -->
+        <value>WriteNullListAsEmpty</value>
+        <!-- 字符类型字段如果为null,输出为"",而非null -->
+        <value>WriteNullStringAsEmpty</value>
+        <!-- Boolean字段如果为null,输出为false,而非null -->
+        <value>WriteNullBooleanAsFalse</value>
+        <!-- null String不输出  -->
+        <value>WriteNullStringAsEmpty</value>
+        <!-- null String也要输出  -->
+        <value>WriteMapNullValue</value>
+        <!-- Date的日期转换器 -->
+        <value>WriteDateUseDateFormat</value>
+        <!-- 将Long类型写为String类型解决js精度丢失问题 -->
+        <value>BrowserCompatible</value>
+    </list>
+</property>

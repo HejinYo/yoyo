@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <description>Spring 整合 MyBatis</description>
+
+    <!-- 配置SqlSessionFactory 对象-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!-- 输入数据库连接池 -->
+        <property name="dataSource" ref="dataSource"/>
+        <!-- 配置Mybatis 全局配置文件 -->
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>
+        <!-- 扫面 entity 包 使用别名,不支持通配扫描 自动取对应包中不包括包名的简单类名作为包括包名的别名 -->
+        <!-- 可以重写做到通配符扫描 http://blog.csdn.net/wsmalltiger/article/details/41825375 -->
+        <property name="typeAliasesPackage" value="cn.hejinyo.system.model,cn.hejinyo.other.model"/>
+        <!-- 扫面 Mapper 配置文件-->
+        <property name="mapperLocations" value="classpath*:cn/hejinyo/*/dao/*.xml"/>
+    </bean>
+
+    <!-- 配置扫描 mapper 接口包，动态实现Dao接口 ，并注入到spring 容器中，用逗号隔开 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!-- 给出扫描 dao 接口包，扫描 @Repository 注解的类 -->
+        <property name="basePackage" value="cn.hejinyo.*.dao"/>
+        <!--BaseDaopper 才作为映射器加载 -->
+        <property name="markerInterface" value="cn.hejinyo.core.base.dao.BaseDao"/>
+        <!-- 注入SqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+</beans>
