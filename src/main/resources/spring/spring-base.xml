@@ -12,9 +12,16 @@
 
     <description>spring主配置文件</description>
 
-    <!-- 属性和配置文件读入 ,多个用逗号隔开 数据库参数和系统参数 -->
-    <util:properties id="applicationProperties" location="classpath:properties/application.properties"/>
-    <context:property-placeholder properties-ref="applicationProperties" ignore-resource-not-found="true"/>
+    <!-- 属性和配置文件读入-->
+    <!-- <util:properties id="applicationProperties" location="classpath:properties/application.properties"/>
+    <context:property-placeholder properties-ref="applicationProperties" ignore-resource-not-found="true"/> -->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations"> <!-- PropertyPlaceholderConfigurer类中有个locations属性，接收的是一个数组，即我们可以在下面配好多个properties文件 -->
+            <array>
+                <value>classpath*:properties/application.properties</value>
+            </array>
+        </property>
+    </bean>
 
     <!-- 扫描注解@Component , @Service , @Repository。 要把 controller去除，controller是在spring-mvc.xml中配置的，如果不去除会影响事务管理的。 -->
     <!-- cn.hejinyo.*.mapper 已经在 sping-mybatis.xml中文件扫描 -->
